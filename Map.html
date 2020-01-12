@@ -10,9 +10,12 @@
 <div id="map"></div>
 
 <script type="text/javascript" src="us-states.js"></script>
+<!--<script type="text/javascript" src="countries-old.js"></script>-->
+<script type="text/javascript" src="CountryData/countries - 2014.js"></script>
 
 <style>
 #map { height: 100%; }
+body { margin: 0; }
 .info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
 .legend { text-align: left; line-height: 18px; color: #555; } .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
 </style>
@@ -21,7 +24,10 @@
 <script>
 
 var mapboxAccessToken = "pk.eyJ1IjoiZWR0ZWFncmUiLCJhIjoiY2s1ODBjMGZqMGl0cDNmcGdwNXBkY2lndSJ9.Ovu_8lop71I-KSyq6f6OQg";
-var map = L.map('map').setView([37.8, -96], 4);
+var map = L.map('map', { minZoom: 2 }).setView([20, 0], 3);
+
+var bounds = [[-100,-100], [100,100]];
+map.fitBounds(bounds);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
     id: 'mapbox/light-v9'
@@ -36,28 +42,42 @@ info.onAdd = function (map) {
 	};
 
 info.update = function (props) {
-		this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-			'<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-			: 'Hover over a state');
+		this._div.innerHTML = '<h4>Global greenhouse gas emissions</h4>' +  (props ?
+			'<b>' + props.CountryName + '</b><br />CO<sub>2</sub> gas emissions:' + props.Emissions + (props.Emissions > 0 ? ' Tonnes per capita' : '')
+			: 'Hover over a country');
 	};
 
 info.addTo(map)
 
 function getColor(d)
 {
-    return d > 1000 ? '#800026' :
-           d > 500  ? '#BD0026' :
-           d > 200  ? '#E31A1C' :
-           d > 100  ? '#FC4E2A' :
-           d > 50   ? '#FD8D3C' :
-           d > 20   ? '#FEB24C' :
-           d > 10   ? '#FED976' :
-                      '#FFEDA0';
+    // Old Colors
+    /*return d > 600000 ? '#800026' :
+           d > 500000  ? '#BD0026' :
+           d > 400000  ? '#E31A1C' :
+           d > 300000  ? '#FC4E2A' :
+           d > 200000   ? '#FD8D3C' :
+           d > 100000   ? '#FEB24C' :
+           d > 50000   ? '#FED976' :
+           d > 0   ? '#FFEDA0':
+                    '#AAAAAA';*/
+    return d > 16 ? '#000000' :
+           d > 15 ? '#3220000' :
+           d > 13 ? '#660000' :
+           d > 10 ? '#AA0000' :
+           d > 8  ? '#FF0000' :
+           d > 6  ? '#FF5500' :
+           d > 4  ? '#FFCC00' :
+           d > 3   ? '#FFFF00' :
+           d > 2   ? '#DDFF00' :
+           d > 1   ? '#99FF00' :
+           d > 0   ? '#55FF00' :
+                    '#AAAAAA';
 }
 
 function style(feature) {
     return {
-        fillColor: getColor(feature.properties.density),
+        fillColor: getColor(feature.properties.Emissions),
         weight: 2,
         opacity: 1,
         color: 'white',
@@ -103,7 +123,7 @@ function onEachFeature(feature, layer) {
     });
 }
 
-geojson = L.geoJson(statesData, {
+geojson = L.geoJson(CountriesOutline, {
 		style: style,
 		onEachFeature: onEachFeature
 	}).addTo(map);
